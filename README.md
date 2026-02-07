@@ -1,0 +1,360 @@
+# singbox
+Install and configure vless with reality or TLS on your linux server by executing a single command!
+
+TUIC and hysteria2 on sing-box is also supported!
+
+This script:
+* Installs docker with compose plugin in your server
+* Generates docker-compose.yml and sing-box/xray configuration for vless protocol for reality and tls
+* Generates docker-compose.yml and sing-box configuration for TUIC protocol with tls
+* Generates docker-compose.yml and sing-box configuration for hysteria2 protocol with tls
+* Generates client configuration string and QRcode
+* Gets and renews valid certificate from Letsencrypt for TLS encryption
+* Fine-tunes kernel tunables
+* Is designed by taking security considerations into account  to make the server undetectable
+
+Features:
+* Generates client configuration string
+* Generates client configuration QRcode
+* You can choose between xray or sing-box core
+* You can choose between reality or TLS security protocol
+* You can use a Text-based user interface (TUI)
+* You can create multiple user accounts
+* You can regenerate configuration and keys
+* You can change SNI domain
+* You can change transport protocol (tcp, http, grpc, ws)
+* You can change tunneling protocol (vless, TUIC, hysteria2, shadowtls)
+* You can get valid TLS certificate with Letsencrypt
+* You can block malware and adult contents
+* Merges your custom advanced configuration
+* Install with a single command
+* Create backup from users and configuration
+* Restore users and configuration from backup
+
+Supported OS:
+* Ubuntu 22.04
+* Ubuntu 20.04
+* Ubuntu 18.04
+* Debian 11
+* Debian 10
+* CentOS Stream 9
+* CentOS Stream 8
+* CentOS 7
+* Fedora 37
+
+## Quick Start
+You can start using this script with default configuration by copy and paste the line below in terminal.
+
+This command will configure `sing-box` with `reality` security protocol over `tcp` transport protocol on port `443` for `www.google.com` SNI domain by default:
+```
+bash <(curl -sL https://bit.ly/realityez)
+```
+or (if the above command dosen't work):
+```
+bash <(curl -sL https://raw.githubusercontent.com/mahyarmlk/singbox/main/singbox.sh)
+```
+After a while you will get configuration string and QR code:
+![image](https://user-images.githubusercontent.com/39186039/232563871-0140e10a-22b4-4653-9bc9-cdba519a8b41.png)
+
+You can run TUI with `-m` or `--menu` option:
+```
+bash <(curl -sL https://bit.ly/realityez) -m
+```
+And then you will see management menu in your terminal:
+![image](https://github.com/mahyarmlk/singbox/assets/39186039/a727148c-1a11-4702-80f3-ab8b46d916af)
+
+Help message of the script:
+```
+
+Usage: singbox.sh [-t|--transport=tcp|http|grpc|ws|tuic|hysteria2|shadowtls] [-d|--domain=<domain>] [--server=<server>]
+  [--regenerate] [--default] [-r|--restart] [--enable-safenet=true|false] [--port=<port>] [-c|--core=xray|sing-box]
+  [--security=reality|letsencrypt|selfsigned] [-m|--menu]
+  [--show-server-config] [--add-user=<username>] [--list-users] [--show-user=<username>] [--delete-user=<username>]
+  [--backup] [--restore=<url|file>] [--backup-password=<password>] [-u|--uninstall]
+
+  -t, --transport <tcp|http|grpc|ws|tuic|hysteria2|shadowtls> Transport protocol (tcp, http, grpc, ws, tuic, hysteria2, shadowtls default: tcp)
+  -d, --domain <domain>     Domain to use as SNI (default: www.google.com)
+      --server <server>     IP address or domain name of server (Must be a valid domain if using letsencrypt security)
+      --regenerate          Regenerate public and private keys
+      --default             Restore default configuration
+  -r  --restart             Restart services
+  -u, --uninstall           Uninstall reality
+      --enable-safenet <true|false> Enable or disable safenet (blocking malware and adult content)
+      --port <port>         Server port (default: 443)
+  -c  --core <sing-box|xray> Select core (xray, sing-box, default: sing-box)
+      --security <reality|letsencrypt|selfsigned> Select type of TLS encryption (reality, letsencrypt, selfsigned, default: reality)
+  -m  --menu                Show menu
+      --show-server-config  Print server configuration
+      --add-user <username> Add new user
+      --list-users          List all users
+      --show-user <username> Shows the config and QR code of the user
+      --delete-user <username> Delete the user
+      --backup              Backup users and configuration and upload it to temp.sh
+      --restore <url|file>  Restore backup from URL or file
+      --backup-password <password> Create/Restore password protected backup file
+  -h, --help                Display this help message
+```
+
+## Clients
+- Android
+  - [v2rayNG](https://github.com/2dust/v2rayNg/releases)
+  - [NekoBox](https://github.com/MatsuriDayo/NekoBoxForAndroid/releases)
+- iOS
+  - [FoXray](https://apps.apple.com/app/foxray/id6448898396)
+  - [Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)
+  - [Stash](https://apps.apple.com/app/stash/id1596063349)
+- Windows
+  - [v2rayN](https://github.com/2dust/v2rayN/releases)
+- Windows, Linux, macOS
+  - [NekoRay](https://github.com/MatsuriDayo/nekoray/releases)
+  - [Furious](https://github.com/LorenEteval/Furious/releases)
+
+## Security Options
+This script can configure the service with 3 types of security options:
+- reality
+- letsencrypt
+- selfsigned
+
+By default `reality` is configured but you can change the security protocol with `--security` option.
+
+The `letsencrypt` option will use Letsencrypt to get a valid certificate for you server. So you have to assign a valid domain or subdomain to your server with `--server <domain>` option.
+
+The `selfsigned` option is same as `letsencrypt` but the certificates are self-signed and you don't need to assign a domain or subdomain to your server.
+
+## Compatibility and recommendation
+CDN compatibility table:
+
+|   | Cloudflare | ArvanCloud |
+| ------------ | ------------ | ------------ |
+| reality | :x: | :x: |
+| selfsigned | :heavy_check_mark: | :heavy_check_mark: |
+| letsencrypt | :heavy_check_mark: | :heavy_check_mark: |
+| tcp  | :x:  | :x:  |
+| http  | :x:  | :heavy_check_mark:  |
+| grpc  | :heavy_check_mark:  | :heavy_check_mark:  |
+| ws  | :heavy_check_mark:  | :heavy_check_mark:  |
+| tuic  | :x:  | :x:  |
+| hysteria2  | :x:  | :x:  |
+| shadowtls  | :x:  | :x:  |
+
+- You need to enable `grpc` or `websocket` in Cloudflare if you want to use the corresponding transport protocols.
+- You have to configure CDN provider to use HTTPS for connecting to your server.
+- The `ws` transport protocol is not compatible with `reality` security option.
+- The `tuic` tunneling protocol is not compatible with `reality` security option.
+- The `tuic` tunneling protocol is only compatible with `sing-box` core option.
+- The `hysteria2` tunneling protocol is not compatible with `reality` security option.
+- The `hysteria2` tunneling protocol is only compatible with `sing-box` core option.
+- The `shadowtls` tunneling protocol is only compatible with `sing-box` core option.
+- Avoid using `tcp` transport protocol with `letsencrypt` or `selfsigned` security options.
+- Avoid using `selfsigned` security option. Get a domain and use `letsencrypt` option.
+- Do not change the port to something other than `443`.
+- The `sing-box` core has better performance.
+- Using [NekoBox](https://github.com/MatsuriDayo/NekoBoxForAndroid/releases) for Android is recommended.
+
+## User Management
+You can add, view and delete multiple user account with this script easily!
+
+### Add User
+You can add additional user by using `--add-user` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --add-user user1
+```
+This command will create `test1` as a new user.
+
+Notice: Username can only contains A-Z, a-z and 0-9
+
+### List Users
+You can view a list of all users by using `--list-users` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --list-users
+```
+
+### Show User Configuration
+You can get config string and QR code of the user for importing by using `--show-user` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --show-user user1
+```
+This command will print config string and QR code of `user1`
+
+### Delete User
+You can delete a user by using `--delete-user` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --delete-user user1
+```
+This command will delete `user1`
+
+## Advanced Configuration
+You can change script defaults by using different arguments.
+
+Your configuration will be saved and restored in each execution. So You can run the script multiple time with out any problem.
+
+### Change SNI domain
+Reality protocol will use the public certificate of SNI domain.
+
+Default SNI domain is `www.google.com`.
+
+You can change it by using `--domain` or `-d` options:
+```
+bash <(curl -sL https://bit.ly/realityez) -d yahoo.com
+```
+### Change transport protocol
+Default transport protocol is `tcp`.
+
+You can change it by using `--transport` or `-t` options:
+```
+bash <(curl -sL https://bit.ly/realityez) -t http
+```
+Valid options are `tcp`,`http`, `grpc`, `ws`, `tuic`, `hysteria2` and `shadowtls`.
+
+`ws` is not compatible with reality protocol. You have to use `letsencrypt` or `selfsigned` with it.
+
+`tuic` is not compatible with reality protocol. You have to use `letsencrypt` or `selfsigned` with it.
+
+`tuic` is compatible with sing-box core only.
+
+`hysteria2` is not compatible with reality protocol. You have to use `letsencrypt` or `selfsigned` with it.
+
+`hysteria2` is compatible with sing-box core only.
+
+`shadowtls` is compatible with sing-box core only.
+
+#### ShadowTLS
+ShadowTLS is a TLS disguise proxy that can use someone else's trusted certificate. It is similar to "Reality," but in transport, it uses Shadowsocks. So you need to assign a working SNI to it.
+
+When you enable ShadowTLS, you will configure two proxies: ShadowTLS and Shadowsocks.
+
+You need to configure your client to use both proxies in chain mode.
+
+First, ShadowTLS will establish a secure connection with the server, then Shadowsocks will use the connection created by ShadowTLS.
+
+### Block malware and adult contents
+You can block malware and adult contents by using `--enable-safenet` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --enable-safenet true
+```
+You can disable this feature with `--enable-safenet false` option.
+
+### Get runnig configuration
+You can get the running configuration with `--show-server-config` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --show-server-config
+```
+
+### Regenerate configuration keys
+You can regenerate keys by using `--regenerate` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --regenerate
+```
+All other configuration will be same as before.
+
+### Restart services
+You can restart the service by using `-r` or `--restart` options:
+```
+bash <(curl -sL https://bit.ly/realityez) -r
+```
+
+### Restore default configuration
+You can restore default configuration by using `--default` option.
+```
+bash <(curl -sL https://bit.ly/realityez) --default
+```
+User account will not change with this option.
+
+### Uninstall
+You can delete configuration and services by using `--uninstall` or `-u` options:
+```
+bash <(curl -sL https://bit.ly/realityez) -u
+```
+
+### Change port
+Notice: Do not change default port. This may block your IP!
+
+Default port is `443`.
+
+In case of using `letsencrypt` security option, port `80` has to be available for Letsencrypt challenge.
+
+You can change it by using `--port` option:
+```
+bash <(curl -sL https://bit.ly/realityez) --port 8443
+```
+
+### Change engine core
+Default engine core is sing-box but you can also switch to xray by using `--core` or `-c` options:
+```
+bash <(curl -sL https://bit.ly/realityez) -c xray
+```
+Valid options are `xray` and `sing-box`.
+
+### Create backup
+You can create a backup from users and configuration and upload it to https://temp.sh/ by using `--backup` option.
+
+The `--backup-password` option allows you to protect the backup zip file with the specified password. (Optional)
+```
+bash <(curl -sL https://bit.ly/realityez) --backup --backup-password "P@ssw0rd"
+```
+This command will give you a URL to download you backup file. The URL is only valid for 3 days.
+
+### Restore backup
+You can restore a previously created backup file with `--restore` option.
+
+You need to give the path or URL of the backup file to restore.
+
+The `--backup-password` option allows you to restore the password protected backup zip file.
+```
+bash <(curl -sL https://bit.ly/realityez) --restore /path/to/backup.zip --backup-password "P@ssw0rd"
+```
+or
+```
+bash <(curl -sL https://bit.ly/realityez) --restore "https://www.example.com/backup.zip" --backup-password "P@ssw0rd"
+```
+
+You can migrate users and configuration from one server to another by:
+
+1. Create backup in the old server and copy the URL of backup file
+1. Restore the URL of backup file in the new server
+
+### Text-based user interface (TUI)
+You can also use the TUI for changing the configuration of the service.
+
+To access to TUI you can use `-m` or `--menu` options:
+```
+bash <(curl -sL https://bit.ly/realityez) -m
+```
+
+## Example
+You can combine different options together.
+
+We want to setup a server with these configurations:
+* `grpc` transport protocol
+* `www.wikipedia.org` as SNI domain
+* Block adult contents
+
+So we need to execute this command:
+```
+bash <(curl -sL https://bit.ly/realityez) --transport=grpc --domain=www.wikipedia.com --enable-safenet=true
+```
+## Custom Configuration
+Use this feature only if you know exactly what you are doing!
+
+You can override the configuration generated by the script and add your own custom configuration to it.
+
+Write your custom configuration in one of these files based on the engine that you are using:
+
+```
+/opt/reality-ezpz/sing-box.patch
+```
+or
+```
+/opt/reality-ezpz/xray.patch
+```
+And run script to apply your changes.
+
+For example if you want to increase the debug level of sing-box engine, you can create `/opt/reality-ezpz/sing-box.patch` with this content:
+```
+{
+  "log": {
+    "level": "debug",
+    "timestamp": true
+  }
+}
+```
