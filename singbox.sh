@@ -20,7 +20,7 @@ HEIGHT=30
 WIDTH=60
 CHOICE_HEIGHT=20
 
-image[sing-box]="ghcr.io/sagernet/sing-box:v1.12.20"
+image[sing-box]="ghcr.io/sagernet/sing-box:v1.12.12"
 image[nginx]="nginx:1.24.0"
 image[certbot]="certbot/certbot:v2.6.0"
 image[haproxy]="haproxy:2.8.0"
@@ -789,26 +789,14 @@ function generate_engine_config {
   reality_object='"tls": {
     "enabled": true,
     "server_name": "'"${config[domain]%%:*}"'",
-    "alpn": ["h2", "http/1.1"],
-    "min_version": "1.2",
-    "max_version": "1.3",
-    "cipher_suites": [
-      "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-      "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
-      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-      "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
-    ],
+    "alpn": [],
     "reality": {
       "enabled": true,
       "handshake": {
         "server": "'"${config[domain]%%:*}"'",
         "server_port": '"${reality_port}"',
         "tcp_fast_open": true,
-        "tcp_multi_path": false,
-        "connect_timeout": "5s",
-        "domain_resolver": "dns-main"
+        "connect_timeout": "5s"
       },
       "private_key": "'"${config[private_key]}"'",
       "short_id": ["'"${config[short_id]}"'"],
